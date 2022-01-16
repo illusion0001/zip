@@ -935,7 +935,7 @@ int zip_entry_open(struct zip_t *zip, const char *entryname) {
   zip->entry.method = 0;
 
   // UNIX or APPLE
-#if MZ_PLATFORM == 3 || MZ_PLATFORM == 19
+#if MZ_PLATFORM == 3 || MZ_PLATFORM == 19 || MZ_PLATFORM == PS4
   // regular file with rw-r--r-- persmissions
   zip->entry.external_attr = (mz_uint32)(0100644) << 16;
 #else
@@ -1260,6 +1260,12 @@ int zip_entry_fwrite(struct zip_t *zip, const char *filename) {
 
   memset(buf, 0, MZ_ZIP_MAX_IO_BUF_SIZE);
   memset((void *)&file_stat, 0, sizeof(struct MZ_FILE_STAT_STRUCT));
+// PS4 Open Orbis hack
+#if MZ_PLATFORM == PS4
+  // regular file with rw-r--r-- permissions
+  zip->entry.external_attr |= (mz_uint32)(0100644) << 16;
+  zip->entry.m_time = time(NULL);
+#else
   if (MZ_FILE_STAT(filename, &file_stat) != 0) {
     // problem getting information - check errno
     return ZIP_ENOENT;
@@ -1271,6 +1277,7 @@ int zip_entry_fwrite(struct zip_t *zip, const char *filename) {
   }
   zip->entry.external_attr |= (mz_uint32)((file_stat.st_mode & 0xFFFF) << 16);
   zip->entry.m_time = file_stat.st_mtime;
+#endif
 
   if (!(stream = MZ_FOPEN(filename, "rb"))) {
     // Cannot open filename
