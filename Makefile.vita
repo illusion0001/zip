@@ -1,0 +1,26 @@
+TARGET    = vita-libmzip.a
+OBJS      = src/zip.o
+
+PREFIX   = $(VITASDK)/bin/arm-vita-eabi
+CC       = $(PREFIX)-gcc
+CXX      = $(PREFIX)-g++
+AR       = $(PREFIX)-ar
+CFLAGS   = -Wl,-q -Wall -O3 -Wno-unused-variable -Wno-unused-but-set-variable -ffat-lto-objects -flto -D__PSVITA__ -Iinclude
+CXXFLAGS = $(CFLAGS) -std=gnu++11 -fno-rtti
+
+.PHONY: all clean
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(AR) rcu $@ $^
+
+clean:
+	@rm -rf $(TARGET) $(OBJS)
+	@echo "Cleaned up!"
+
+install: $(TARGET)
+	@echo Copying...
+	@cp -frv src/zip.h $(VITASDK)/arm-vita-eabi/include/mzip.h
+	@cp -frv $(TARGET) $(VITASDK)/arm-vita-eabi/lib/libmzip.a
+	@echo lib installed!

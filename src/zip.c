@@ -348,7 +348,7 @@ static int zip_archive_extract(mz_zip_archive *zip_archive, const char *dir,
                (0x20 << 24)) { // and has sym link attribute (0x80 is file, 0x40
                                // is directory)
 #if defined(_WIN32) || defined(__WIN32__) || defined(_MSC_VER) ||              \
-    defined(__MINGW32__)
+    defined(__MINGW32__) || defined(__PSVITA__)
 #else
       if (info.m_uncomp_size > MAX_PATH ||
           !mz_zip_reader_extract_to_mem_no_alloc(zip_archive, i, symlink_to,
@@ -371,7 +371,7 @@ static int zip_archive_extract(mz_zip_archive *zip_archive, const char *dir,
         }
       }
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__PSVITA__)
       (void)xattr; // unused
 #else
       xattr = (info.m_external_attr >> 16) & 0xFFFF;
